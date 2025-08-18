@@ -3,6 +3,7 @@ from main_package.scrapper.parallel_handler import scrape_urls_parallel
 import pandas as pd
 from main_package.scrapper.utils import MarkdownReader
 import inspect, sys, importlib
+import io
 
 def run_app():
     st.title("Agentic Web Scraper")
@@ -42,18 +43,34 @@ def run_app():
         with st.spinner("Scraping in progress..."):
             scraped_results = scrape_urls_parallel(urls, user_instruction)
 
+            # --- START OF CHANGE ---
             # Call your external function and correctly unpack the return values
-            # The returned final_df is a local variable here, but we immediately store it.
+            # The returned final_df is a local variable here.
             local_final_df, downloads = MarkdownReader.MarkDownToDigitalCsv(scraped_results)
 
-            st.session_state.final_df = local_final_df
+            # Check the type of the returned object and convert if necessary
+            if isinstance(local_final_df, pd.DataFrame):
+                st.session_state.final_df = local_final_df
+            elif isinstance(local_final_df, bytes):
+                try:
+                    # Assume the bytes object is CSV data and convert it to a DataFrame
+                    df_from_bytes = pd.read_csv(io.StringIO(local_final_df.decode('utf-8')))
+                    st.session_state.final_df = df_from_bytes
+                    st.warning("The data received was not a DataFrame and has been converted.")
+                except Exception as e:
+                    st.error(f"Could not convert data to DataFrame: {e}")
+                    st.session_state.final_df = None
+            else:
+                st.error("Unexpected data format received.")
+                st.session_state.final_df = None
+
             st.session_state.downloads = downloads
+            # --- END OF CHANGE ---
 
     # Check if a DataFrame is available to display by checking the session state directly
     if st.session_state.final_df is not None:
         st.success("Scraping complete!")
 
-        # --- START OF CHANGE ---
         # We now access the DataFrame directly from the session state for all calculations.
         total_rows = len(st.session_state.final_df)
         rows_per_page = 10
@@ -63,11 +80,7 @@ def run_app():
         end_index = start_index + rows_per_page
 
         # The paginated DataFrame is created from the session state DataFrame.
-        print(f"type of local_final_df variable is {type(local_final_df)}.")
-        print(f"type of st.session_state.final_df variable is {type(st.session_state.final_df)}.")
-        print(f"this is the local_final_df: {local_final_df}")
         paginated_df = st.session_state.final_df.iloc[start_index:end_index]
-        # --- END OF CHANGE ---
 
         st.markdown(f"**Showing results {start_index + 1} to {min(end_index, total_rows)} of {total_rows}**")
         st.dataframe(paginated_df, use_container_width=True)
