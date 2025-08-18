@@ -10,8 +10,8 @@ def run_app():
     # Text area for user to provide the instructions for scraping
     st.markdown("#### Step 1: Provide Instructions")
     user_instruction = st.text_input(
-    "Enter your scraping instruction:",
-    "Extract a markdown table of books, their titles, and prices."
+        "Enter your scraping instruction:",
+        "Extract a markdown table of books, their titles, and prices."
     )
 
     # Input methods for URLs
@@ -24,9 +24,7 @@ def run_app():
         urls = uploaded_file.read().decode().splitlines()
     elif url_input:
         urls = url_input.strip().splitlines()
-        # urls = url_input
 
-    # --- START OF NEW CODE ---
     # Use session state to manage scraped data and current page
     if 'final_df' not in st.session_state:
         st.session_state.final_df = None
@@ -43,15 +41,18 @@ def run_app():
 
         with st.spinner("Scraping in progress..."):
             scraped_results = scrape_urls_parallel(urls, user_instruction)
+
+            # --- START OF CHANGE ---
+            # Call your external function and correctly unpack the return values
             final_df, downloads = MarkdownReader.MarkDownToDigitalCsv(scraped_results)
-            print(f"the type of final_df variable before st.session_state is {type(final_df)}")
+            # --- END OF CHANGE ---
+
             st.session_state.final_df = final_df
             st.session_state.downloads = downloads
 
     # Check if a DataFrame is available to display
     if st.session_state.final_df is not None:
         st.success("Scraping complete!")
-        print(f"the type of final_df variable before st.session is {type(final_df)}")
         final_df = st.session_state.final_df
 
         # Pagination logic
@@ -61,7 +62,7 @@ def run_app():
 
         start_index = st.session_state.current_page * rows_per_page
         end_index = start_index + rows_per_page
-        print(f"the type of final_df variable is {type(final_df)}")
+
         paginated_df = final_df.iloc[start_index:end_index]
 
         st.markdown(f"**Showing results {start_index + 1} to {min(end_index, total_rows)} of {total_rows}**")
@@ -79,16 +80,17 @@ def run_app():
 
         # Download buttons
         csv_data, json_data = st.session_state.downloads
-        st.download_button(
-            "Download CSV",
-            csv_data,
-            "results.csv",
-            "text/csv"
-        )
-        st.download_button(
-            "Download JSON",
-            json_data,
-            "results.json",
-            "application/json"
-        )
-    # --- END OF NEW CODE ---
+        if csv_data is not None:
+            st.download_button(
+                "Download CSV",
+                csv_data,
+                "results.csv",
+                "text/csv"
+            )
+        if json_data is not None:
+            st.download_button(
+                "Download JSON",
+                json_data,
+                "results.json",
+                "application/json"
+            )

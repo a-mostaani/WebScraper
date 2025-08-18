@@ -92,8 +92,8 @@ class MarkdownReader:
 
             # 2. Prepare JSON data for download
             # Orient='records' is often the most useful format for this type of data
-            json_data = final_df.to_json(orient='records', indent=4)
-
+            json_data = final_df.to_json(orient='records', indent=4).encode('utf-8')
+            print(f" the type of final_df inside the utils function right before returning it is {type(final_df)}")
             return final_df, (csv_data, json_data)
 
 
