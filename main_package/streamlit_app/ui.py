@@ -42,7 +42,7 @@ def run_app():
 
         with st.spinner("Scraping in progress..."):
             scraped_results = scrape_urls_parallel(urls, user_instruction)
-            final_df, downloads = MarkdownReader.MarkDownToDigitalCsv(scraped_results)
+            final_df, downloads = MarkdownReader.process_scraped_data(scraped_results)
 
             st.session_state.final_df = final_df
             st.session_state.downloads = downloads

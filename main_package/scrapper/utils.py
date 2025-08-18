@@ -6,6 +6,7 @@ import csv
 import re
 import pandas as pd
 import logging
+import streamlit as st
 
 
 class DataCleaner:
@@ -98,4 +99,41 @@ class MarkdownReader:
             logging.error(f"No data was successfully scraped and parsed.")
 
             return None
+
+
+
+
+    def process_scraped_data(scraped_results):
+        """
+        Parses markdown from scraped results, creates a DataFrame, and prepares
+        CSV and JSON data for download.
+        Returns the DataFrame and a tuple of (csv_data, json_data).
+        """
+        parsed_dfs = []
+        for result in scraped_results:
+            if result.get('data') and "Error" not in result['data']:
+                try:
+                    markdown_text = list(result['data']['relevant_info'])[0]
+                    markdown_data = io.StringIO(markdown_text)
+
+                    df_page = pd.read_csv(markdown_data, sep='|', header=0, skiprows=[1], engine='python')
+                    df_page = df_page.dropna(axis=1, how='all')
+                    df_page.columns = [col.strip() for col in df_page.columns]
+                    for col in df_page.select_dtypes(include=['object']).columns:
+                        df_page[col] = df_page[col].str.strip()
+                    df_page['Source URL'] = result['url']
+                    parsed_dfs.append(df_page)
+                except Exception as e:
+                    st.error(f"Could not parse data from {result['url']}: {e}")
+            elif result.get('error'):
+                st.error(f"Failed to scrape {result['url']}: {result['error']}")
+
+        if parsed_dfs:
+            final_df = pd.concat(parsed_dfs, ignore_index=True)
+            csv_data = final_df.to_csv(index=False).encode('utf-8')
+            json_data = final_df.to_json(orient='records', indent=4).encode('utf-8')
+            return final_df, (csv_data, json_data)
+        else:
+            st.warning("No data was successfully scraped.")
+            return None, (None, None)
 
