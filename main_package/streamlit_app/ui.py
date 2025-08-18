@@ -65,6 +65,7 @@ def run_app():
         # The paginated DataFrame is created from the session state DataFrame.
         print(f"type of local_final_df variable is {type(local_final_df)}.")
         print(f"type of st.session_state.final_df variable is {type(st.session_state.final_df)}.")
+        print(f"this is the local_final_df: {local_final_df}")
         paginated_df = st.session_state.final_df.iloc[start_index:end_index]
         # --- END OF CHANGE ---
 
