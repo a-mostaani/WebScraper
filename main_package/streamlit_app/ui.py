@@ -43,16 +43,8 @@ def run_app():
 
         with st.spinner("Scraping in progress..."):
             scraped_results = scrape_urls_parallel(urls, user_instruction)
-            #Debugging
-            # print("=== DEBUG MR ===")
-            # print("MR id:", id(MarkdownReader))
-            # print("MR module:", MarkdownReader.__module__)
-            # print("MR file:", sys.modules[MarkdownReader.__module__].__file__)
-            # print("Has method?", hasattr(MarkdownReader, "process_scraped_data"))
-            # print("Attr obj id:", id(getattr(MarkdownReader, "process_scraped_data", None)))
-            # print("Attr repr:", getattr(MarkdownReader, "process_scraped_data", None))
-            # print("================")
             final_df, downloads = MarkdownReader.MarkDownToDigitalCsv(scraped_results)
+            print(f"the type of final_df variable before st.session_state is {type(final_df)}")
             st.session_state.final_df = final_df
             st.session_state.downloads = downloads
 
@@ -61,7 +53,6 @@ def run_app():
         st.success("Scraping complete!")
         print(f"the type of final_df variable before st.session is {type(final_df)}")
         final_df = st.session_state.final_df
-        print(f"the type of final_df variable after st.session is {type(final_df)}")
 
         # Pagination logic
         rows_per_page = 10
