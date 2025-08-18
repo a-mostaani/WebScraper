@@ -30,6 +30,7 @@ class DataCleaner:
 
 class MarkdownReader:
 
+    @staticmethod
     def MarkDownToCsv(markdown_data, data_subject):
 
         # The first line is the header, which we will use for the CSV file.
@@ -56,7 +57,7 @@ class MarkdownReader:
             # Write the data rows
             csv_writer.writerows(cleaned_rows)
 
-
+    @staticmethod
     def MarkDownToDigitalCsv(scraped_results):
 
         # Process the raw results to parse markdown tables
@@ -127,7 +128,6 @@ class MarkdownReader:
                     st.error(f"Could not parse data from {result['url']}: {e}")
             elif result.get('error'):
                 st.error(f"Failed to scrape {result['url']}: {result['error']}")
-
         if parsed_dfs:
             final_df = pd.concat(parsed_dfs, ignore_index=True)
             csv_data = final_df.to_csv(index=False).encode('utf-8')
