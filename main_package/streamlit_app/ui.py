@@ -41,11 +41,9 @@ def run_app():
 
         with st.spinner("Scraping in progress..."):
             scraped_results = scrape_urls_parallel(urls, user_instruction)
-
-            # --- START OF CHANGE ---
-            # Call your external function and correctly unpack the return values
             final_df, downloads = MarkdownReader.MarkDownToDigitalCsv(scraped_results)
-            # --- END OF CHANGE ---
+            print(f"the type of final_df variable is {type(final_df)}.")
+
 
             st.session_state.final_df = final_df
             st.session_state.downloads = downloads
