@@ -84,6 +84,7 @@ class MarkdownReader:
 
         if parsed_dfs:
             final_df = pd.concat(parsed_dfs, ignore_index=True)
+            print(f" the type of final_df inside the utils function is {type(final_df)}")
 
 
             # 1. Prepare CSV file for download

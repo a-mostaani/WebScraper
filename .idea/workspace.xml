@@ -4,8 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="00d88211-1307-486a-acc0-8e30cd925ba3" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/books.csv" beforeDir="false" afterPath="$PROJECT_DIR$/books.csv" afterDir="false" />
+    <list default="true" id="00d88211-1307-486a-acc0-8e30cd925ba3" name="Changes" comment="- pagination 1st attempt&#10;- separation of final_df and downloads">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -13,8 +13,25 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="main" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;a-mostaani&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/a-mostaani/WebScraper&quot;,
+    &quot;accountId&quot;: &quot;bd0a3308-714a-44b5-9787-da7f6253cbb7&quot;
+  }
+}</component>
   <component name="ProjectCodeStyleSettingsMigration">
     <option name="version" value="2" />
   </component>
@@ -26,28 +43,28 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "Python.Example_wiki_python.executor": "Debug",
-    "Python.agent_llm.executor": "Debug",
-    "Python.main.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "main",
-    "kotlin-language-version-configured": "true",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "Project",
-    "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.39770114",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;Python.Example_wiki_python.executor&quot;: &quot;Debug&quot;,
+    &quot;Python.agent_llm.executor&quot;: &quot;Debug&quot;,
+    &quot;Python.main.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;feature/ui-pagination&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.39770114&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager" selected="Python.main">
     <configuration name="Example_wiki_python" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="WebScrapperProject" />
@@ -129,12 +146,91 @@
       <workItem from="1754994136925" duration="14365000" />
       <workItem from="1755085268877" duration="1229000" />
       <workItem from="1755199190169" duration="7298000" />
-      <workItem from="1755518224213" duration="987000" />
+      <workItem from="1755518224213" duration="4497000" />
+      <workItem from="1755530463921" duration="2409000" />
     </task>
+    <task id="LOCAL-00001" summary="The result of running example urls">
+      <option name="closed" value="true" />
+      <created>1755526828226</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1755526828226</updated>
+    </task>
+    <task id="LOCAL-00002" summary="- pagination 1st attempt&#10;- separation of final_df and downloads">
+      <option name="closed" value="true" />
+      <created>1755528514473</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1755528514473</updated>
+    </task>
+    <task id="LOCAL-00003" summary="- pagination 1st attempt&#10;- separation of final_df and downloads">
+      <option name="closed" value="true" />
+      <created>1755528717725</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1755528717725</updated>
+    </task>
+    <task id="LOCAL-00004" summary="- pagination 1st attempt&#10;- separation of final_df and downloads">
+      <option name="closed" value="true" />
+      <created>1755529037325</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1755529037325</updated>
+    </task>
+    <task id="LOCAL-00005" summary="- pagination 1st attempt&#10;- separation of final_df and downloads">
+      <option name="closed" value="true" />
+      <created>1755529543039</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1755529543039</updated>
+    </task>
+    <task id="LOCAL-00006" summary="- pagination 1st attempt&#10;- separation of final_df and downloads">
+      <option name="closed" value="true" />
+      <created>1755530682683</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1755530682683</updated>
+    </task>
+    <task id="LOCAL-00007" summary="- pagination 1st attempt&#10;- separation of final_df and downloads">
+      <option name="closed" value="true" />
+      <created>1755534836984</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1755534836984</updated>
+    </task>
+    <task id="LOCAL-00008" summary="- pagination 1st attempt&#10;- separation of final_df and downloads">
+      <option name="closed" value="true" />
+      <created>1755535230451</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1755535230451</updated>
+    </task>
+    <task id="LOCAL-00009" summary="- pagination 1st attempt&#10;- separation of final_df and downloads">
+      <option name="closed" value="true" />
+      <created>1755535559576</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1755535559576</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="The result of running example urls" />
+    <MESSAGE value="- pagination 1st attempt&#10;- separation of final_df and downloads" />
+    <option name="LAST_COMMIT_MESSAGE" value="- pagination 1st attempt&#10;- separation of final_df and downloads" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -156,7 +252,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/main_package/scrapper/utils.py</url>
-          <line>70</line>
+          <line>72</line>
           <option name="timeStamp" value="20" />
         </line-breakpoint>
       </breakpoints>
@@ -166,6 +262,6 @@
     <SUITE FILE_PATH="coverage/WebScrapperProject$agent_llm.coverage" NAME="agent_llm Coverage Results" MODIFIED="1754649278704" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/main_package/scrapper" />
     <SUITE FILE_PATH="coverage/WebScrapperProject$main.coverage" NAME="main Coverage Results" MODIFIED="1755249913430" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/main_package" />
     <SUITE FILE_PATH="coverage/WebScrapperProject$Example_wiki_python.coverage" NAME="Example_wiki_python Coverage Results" MODIFIED="1755249686195" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/main_package/examples" />
-    <SUITE FILE_PATH="coverage/WebScraperCloned$main.coverage" NAME="main Coverage Results" MODIFIED="1755518246207" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/main_package" />
+    <SUITE FILE_PATH="coverage/WebScraperCloned$main.coverage" NAME="main Coverage Results" MODIFIED="1755530696084" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/main_package" />
   </component>
 </project>
