@@ -41,27 +41,30 @@ def run_app():
 
         with st.spinner("Scraping in progress..."):
             scraped_results = scrape_urls_parallel(urls, user_instruction)
-            final_df, downloads = MarkdownReader.MarkDownToDigitalCsv(scraped_results)
-            print(f"the type of final_df variable is {type(final_df)}.")
 
+            # Call your external function and correctly unpack the return values
+            # The returned final_df is a local variable here, but we immediately store it.
+            local_final_df, downloads = MarkdownReader.MarkDownToDigitalCsv(scraped_results)
 
-            st.session_state.final_df = final_df
+            st.session_state.final_df = local_final_df
             st.session_state.downloads = downloads
 
-    # Check if a DataFrame is available to display
+    # Check if a DataFrame is available to display by checking the session state directly
     if st.session_state.final_df is not None:
         st.success("Scraping complete!")
-        final_df = st.session_state.final_df
 
-        # Pagination logic
+        # --- START OF CHANGE ---
+        # We now access the DataFrame directly from the session state for all calculations.
+        total_rows = len(st.session_state.final_df)
         rows_per_page = 10
-        total_rows = len(final_df)
         total_pages = (total_rows - 1) // rows_per_page + 1
 
         start_index = st.session_state.current_page * rows_per_page
         end_index = start_index + rows_per_page
 
-        paginated_df = final_df.iloc[start_index:end_index]
+        # The paginated DataFrame is created from the session state DataFrame.
+        paginated_df = st.session_state.final_df.iloc[start_index:end_index]
+        # --- END OF CHANGE ---
 
         st.markdown(f"**Showing results {start_index + 1} to {min(end_index, total_rows)} of {total_rows}**")
         st.dataframe(paginated_df, use_container_width=True)
