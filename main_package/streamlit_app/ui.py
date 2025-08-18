@@ -48,7 +48,7 @@ def run_app():
             # The returned final_df is a local variable here.
             local_final_df, downloads = MarkdownReader.MarkDownToDigitalCsv(scraped_results)
 
-            # Check the type of the returned object and convert if necessary
+            # Check the type of the returned dataFrame variable and convert if necessary
             if isinstance(local_final_df, pd.DataFrame):
                 st.session_state.final_df = local_final_df
             elif isinstance(local_final_df, bytes):
