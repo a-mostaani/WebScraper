@@ -43,15 +43,16 @@ def run_app():
 
         with st.spinner("Scraping in progress..."):
             scraped_results = scrape_urls_parallel(urls, user_instruction)
-            print("=== DEBUG MR ===")
-            print("MR id:", id(MarkdownReader))
-            print("MR module:", MarkdownReader.__module__)
-            print("MR file:", sys.modules[MarkdownReader.__module__].__file__)
-            print("Has method?", hasattr(MarkdownReader, "process_scraped_data"))
-            print("Attr obj id:", id(getattr(MarkdownReader, "process_scraped_data", None)))
-            print("Attr repr:", getattr(MarkdownReader, "process_scraped_data", None))
-            print("================")
-            final_df, downloads = MarkdownReader.process_scraped_data(scraped_results)
+            #Debugging
+            # print("=== DEBUG MR ===")
+            # print("MR id:", id(MarkdownReader))
+            # print("MR module:", MarkdownReader.__module__)
+            # print("MR file:", sys.modules[MarkdownReader.__module__].__file__)
+            # print("Has method?", hasattr(MarkdownReader, "process_scraped_data"))
+            # print("Attr obj id:", id(getattr(MarkdownReader, "process_scraped_data", None)))
+            # print("Attr repr:", getattr(MarkdownReader, "process_scraped_data", None))
+            # print("================")
+            final_df, downloads = MarkdownReader.MarkDownToDigitalCsv(scraped_results)
             st.session_state.final_df = final_df
             st.session_state.downloads = downloads
 
