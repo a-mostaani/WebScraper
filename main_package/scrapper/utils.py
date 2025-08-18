@@ -91,7 +91,7 @@ class MarkdownReader:
             # Orient='records' is often the most useful format for this type of data
             json_data = final_df.to_json(orient='records', indent=4)
 
-            return csv_data, json_data
+            return final_df, (csv_data, json_data)
 
 
         else:

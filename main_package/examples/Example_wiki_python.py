@@ -74,7 +74,7 @@ scraped_results = scrape_urls_parallel(urls_to_scrape, instruction)
 
 #--------------------------------------------------------------- can be removed <--
 
-csv_data = MarkdownReader.MarkDownToDigitalCsv(scraped_results)
+final_df, downloads = MarkdownReader.MarkDownToDigitalCsv(scraped_results)
 
 for result in scraped_results:
     print("\n--- Processing Result ---")
