@@ -59,7 +59,9 @@ def run_app():
     # Check if a DataFrame is available to display
     if st.session_state.final_df is not None:
         st.success("Scraping complete!")
+        print(f"the type of final_df variable before st.session is {type(final_df)}")
         final_df = st.session_state.final_df
+        print(f"the type of final_df variable after st.session is {type(final_df)}")
 
         # Pagination logic
         rows_per_page = 10
@@ -68,7 +70,7 @@ def run_app():
 
         start_index = st.session_state.current_page * rows_per_page
         end_index = start_index + rows_per_page
-
+        print(f"the type of final_df variable is {type(final_df)}")
         paginated_df = final_df.iloc[start_index:end_index]
 
         st.markdown(f"**Showing results {start_index + 1} to {min(end_index, total_rows)} of {total_rows}**")
