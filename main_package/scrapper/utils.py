@@ -100,7 +100,7 @@ class MarkdownReader:
         else:
             logging.error(f"No data was successfully scraped and parsed.")
 
-            return None
+            return None, (None, None)
 
 
 
