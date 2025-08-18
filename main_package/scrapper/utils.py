@@ -102,7 +102,7 @@ class MarkdownReader:
 
 
 
-
+    @staticmethod
     def process_scraped_data(scraped_results):
         """
         Parses markdown from scraped results, creates a DataFrame, and prepares
