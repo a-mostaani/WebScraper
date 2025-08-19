@@ -15,8 +15,11 @@ def run_app():
 
     # Input methods for URLs
     st.markdown("#### Step 2: Provide URLs")
-    url_input = st.text_area("Enter URLs (one per line)")
-    uploaded_file = st.file_uploader("Or upload a file with URLs")
+    url_input = st.text_area("Enter URLs (one per line without quotations "" or other decorators)",
+                             value="""https://www.example.com/page1
+                            https://www.example.com/page2
+                            https://www.example.com/page3""")
+    uploaded_file = st.file_uploader("Or upload a .txt file with URLs - following same rules as in urls input")
 
     urls = []
     if uploaded_file:
