@@ -96,18 +96,24 @@ def run_app():
             st.rerun()
 
         # Download buttons
-        csv_data, json_data = st.session_state.downloads
-        if csv_data is not None:
-            st.download_button(
-                "Download CSV",
-                csv_data,
-                "results.csv",
-                "text/csv"
-            )
-        if json_data is not None:
-            st.download_button(
-                "Download JSON",
-                json_data,
-                "results.json",
-                "application/json"
-            )
+        # --- START OF BugFix ---
+        # Added a check to ensure downloads is a tuple with two elements before unpacking.
+        if isinstance(st.session_state.downloads, tuple) and len(st.session_state.downloads) == 2:
+            csv_data, json_data = st.session_state.downloads
+            if csv_data is not None:
+                st.download_button(
+                    "Download CSV",
+                    csv_data,
+                    "results.csv",
+                    "text/csv"
+                )
+            if json_data is not None:
+                st.download_button(
+                    "Download JSON",
+                    json_data,
+                    "results.json",
+                    "application/json"
+                )
+        else:
+            st.error("Download data is corrupted. Please try scraping again.")
+        # --- END OF Bugfix ---
