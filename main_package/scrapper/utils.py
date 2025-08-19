@@ -59,47 +59,51 @@ class MarkdownReader:
 
     @staticmethod
     def MarkDownToDigitalCsv(scraped_results):
-
-        # Process the raw results to parse markdown tables
+        # Initialize parsed_dfs list to store dataframes from each URL
         parsed_dfs = []
+
+        # Loop through each scraped result to process it
         for result in scraped_results:
-            if result['data'] and not "Error" in result['data']:
+            # Check if there is data and no 'Error' string in it
+            if result.get('data') and "Error" not in result['data']:
                 try:
-                    # Convert markdown string to a file-like object
-                    markdown_data = io.StringIO(list(result['data']['relevant_info'])[0])
-                    # Read the markdown table as a CSV
-                    df_page = pd.read_csv(markdown_data, sep='|', header=0, skiprows=[1], engine='python')
+                    # Access the markdown content from the 'relevant_info' key
+                    markdown_data_string = list(result['data']['relevant_info'])[0]
+                    # Convert the string to a file-like object for pandas
+                    markdown_data_io = io.StringIO(markdown_data_string)
+
+                    # Read the markdown table as a CSV, skipping header formatting line
+                    df_page = pd.read_csv(markdown_data_io, sep='|', header=0, skiprows=[1], engine='python')
+
                     # Clean up the DataFrame
                     df_page = df_page.dropna(axis=1, how='all')
-                    # df_page = df_page.iloc[:, 1:-1] # Remove the first and last empty columns from markdown parsing
                     df_page.columns = [col.strip() for col in df_page.columns]
+                    # Apply string stripping to all object columns
                     df_page = df_page.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
                     df_page['Source URL'] = result['url']
                     parsed_dfs.append(df_page)
+
                 except Exception as e:
+                    # Log parsing errors but don't stop the process
                     logging.error(f"Could not parse data from {result['url']}: {e}")
 
-            elif result['error']:
+            # Handle scraping errors
+            elif result.get('error'):
                 logging.error(f"Failed to scrape {result['url']}: {result['error']}")
 
+        # Now, handle the final aggregation and return
         if parsed_dfs:
             final_df = pd.concat(parsed_dfs, ignore_index=True)
-            print(f" the type of final_df inside the utils function is {type(final_df)}")
 
-
-            # 1. Prepare CSV file for download
+            # Prepare CSV and JSON data from the final DataFrame
             csv_data = final_df.to_csv(index=False).encode('utf-8')
-
-            # 2. Prepare JSON data for download
-            # Orient='records' is often the most useful format for this type of data
             json_data = final_df.to_json(orient='records', indent=4).encode('utf-8')
-            print(f" the type of final_df inside the utils function right before returning it is {type(final_df)}")
+
+            # Return the DataFrame and the tuple of download data
             return final_df, (csv_data, json_data)
-
-
         else:
-            logging.error(f"No data was successfully scraped and parsed.")
-
+            # If no data was scraped, return None for the DataFrame and for the downloads
+            logging.warning("No data was successfully scraped and parsed.")
             return None, (None, None)
 
 
