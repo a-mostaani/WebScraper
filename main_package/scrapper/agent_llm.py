@@ -16,6 +16,7 @@ from main_package.scrapper.utils import MarkdownReader
 from llama_index.core.node_parser import SentenceSplitter
 import asyncio
 from main_package.scrapper.utils import WorkerLogger
+from dotenv import load_dotenv
 
 
 
@@ -39,6 +40,7 @@ class Scrapper_agent:
                 plain_text = Scrapper_agent.html_to_text(html)
 
                 # Step 2: Configure Ollama LLM
+                load_dotenv()
                 os.environ["GOOGLE_API_KEY"] = os.getenv("GOOGLE_API_KEY")
                 os.environ["LLAMA_CLOUD_API_KEY"] = os.getenv("GOOGLE_API_KEY")
 
@@ -184,148 +186,148 @@ class Scrapper_agent:
 
 
 
-        def create_index_and_query_async(html: str, instruction: str, model: str = "llama3:8b-instruct-q5_k_m") -> dict[str, str]:
-            # Get the logger instance from the class method
-            worker_logger_instance = WorkerLogger()
-            worker_logger = worker_logger_instance.setup_worker_logger()
-
-            try:
-                # Step 1: Convert HTML to clean plain text
-                plain_text = Scrapper_agent.html_to_text(html)
-
-                # Step 2: Configure Ollama LLM
-                os.environ["GOOGLE_API_KEY"] = os.getenv("GOOGLE_API_KEY")
-                os.environ["LLAMA_CLOUD_API_KEY"] = os.getenv("GOOGLE_API_KEY")
-
-                if not os.environ["GOOGLE_API_KEY"]:
-                    raise ValueError("GOOGLE_API_KEY environment variable not set. Please set it using your previous code: os.environ[\"GOOGLE_API_KEY\"] = ..." )
-                else:
-                    worker_logger.info(f"Successfully loaded Google's API key.")
-
-                if not os.environ["LLAMA_CLOUD_API_KEY"]:
-                    raise ValueError("LLAMA_CLOUD_API_KEY environment variable not set. Please set it using your previous code: os.environ[\"LLAMA_CLOUD_API_KEY\"] = ...")
-                else:
-                    worker_logger.info("Successfully loaded Llama cloud's API key")
-
-                ollama_base_url = "http://localhost:11434"
-                # Settings.llm = Ollama(model=model, base_url=ollama_base_url, request_timeout=120.0  ) #if you want ollama
-                Settings.llm = Gemini(model="models/gemini-1.5-flash") # The model name can be changed #if you want gemini
-
-
-                # Step 3: Configure embedding model (nomic-embed-text via Ollama)
-                # Settings.embed_model = OllamaEmbedding(
-                #     model_name="nomic-embed-text",
-                #     base_url=ollama_base_url
-                # ) #if you want ollama
-                Settings.embed_model = GeminiEmbedding(model_name="models/embedding-001")
-
-
-
-                # Step 4: Set up document chunking
-                Settings.node_parser = SentenceSplitter(chunk_size=1024, chunk_overlap=20)
-
-                # Step 5: Build Document and Index
-                doc = Document(text=plain_text)
-                index = VectorStoreIndex.from_documents([doc])
-
-                # Step 6: Query the index with the user instruction
-                query_engine = index.as_query_engine()
-
-
-                scraping_subject_prompt = (
-                    f""" I have received the following user request: {instruction} for a web scraper.
-                    Given this request, give me the subject for which we are looking for data.
-                    ⚠️ Return ONLY a data subject, which is usually a single world or a phrase, 
-                    **Do NOT** inc
-                    lude any explanation, markdown, or commentary.
-                    
-                                        User request:
-                    'I want to find information about the price of second-hand cars', 
-                    
-                    Your answer:
-                    second hand cars
-                    
-                    
-                    Example2:                    
-                    User request:
-                    'I want to find a list of movies together with their number of nominations, awards and best pictures', 
-                    
-                    Your answer:
-                    movies
-                    """
-                )
-
-                data_subject = query_engine.query(scraping_subject_prompt)
-
-                data_categories_prompt = (
-                    f"""I have received the following user request: {instruction} for a web scraper"
-                    From this request extract the data categories that should be found associated with this data subject: {data_subject.response}.
-                    ⚠️ Return ONLY a list and **Do NOT** include any explanation, markdown, or commentary.
-                    Each item/bullet point should represent a specific data category request by the user.
-                    
-                    Example1:
-                    User request:
-                    'I want to find information about the price of second-hand cars', 
-                    Data subject:
-                    second-hand cars
-                    
-                    Your answer:
-                    * Car make, model, version, year
-                    * car Features/configurations
-                    * car Expert price
-                    * car Sold price (if available)
-                    
-                    
-                    Example2:                    
-                    User request:
-                    'I want to find a list of movies together with their number of nominations, awards and best pictures', 
-                    Data subject:
-                    movies
-                    
-                    Your answer:
-                    * Movie number of nominations 
-                    * Movie number of awards for a movie
-                    * Movie number of best pictures for a movie
-                    """
-                )
-                data_categories = query_engine.query(data_categories_prompt)
-
-
-
-                relevance_prompt = (
-                    f"""
-                    find all the relevant data related to {data_subject.response} 
-                    on the following categories: {data_categories.response}
-                    inside the source of information available.
-                    do not skip extracting any relevant data."""  # You can truncate the HTML if needed
-                )
-                relevant_info = query_engine.query(relevance_prompt)
-
-                table_prompt = (
-                    f"""About this data subject:"{data_subject.response}", this data categories are requested: "{data_categories.response}"
-                    And here is the relevant content from a web page:{relevant_info}".
-                    Generate a structured table (in markdown format) where each column corresponds to a data category requested.
-                    Each row of the table corresponds to a unique {data_subject.response}."""
-                )
-                structured_table = query_engine.query(table_prompt)
-
-            except Exception as e:
-                logging.error(f"LLM agent failed: {e}")
-                return f"Error: {str(e)}"
-
-            try:
-                MarkdownReader.MarkDownToCsv(structured_table.response, data_subject.response)
-
-                return {
-                    "Data Subject": {data_subject.response},
-                    "relevant data categories request": {data_categories.response},
-                    "relevant_info": {relevant_info.response},
-                    "structured_data": str(structured_table.response)
-                }
-
-            except Exception as e:
-                logging.error(f"Fail to turn the Marked-down table into a standard CSV or JSON.")
-                return f"Error: {str(e)}"
+        # def create_index_and_query_async(html: str, instruction: str, model: str = "llama3:8b-instruct-q5_k_m") -> dict[str, str]:
+        #     # Get the logger instance from the class method
+        #     worker_logger_instance = WorkerLogger()
+        #     worker_logger = worker_logger_instance.setup_worker_logger()
+        #
+        #     try:
+        #         # Step 1: Convert HTML to clean plain text
+        #         plain_text = Scrapper_agent.html_to_text(html)
+        #
+        #         # Step 2: Configure Ollama LLM
+        #         os.environ["GOOGLE_API_KEY"] = os.getenv("GOOGLE_API_KEY")
+        #         os.environ["LLAMA_CLOUD_API_KEY"] = os.getenv("GOOGLE_API_KEY")
+        #
+        #         if not os.environ["GOOGLE_API_KEY"]:
+        #             raise ValueError("GOOGLE_API_KEY environment variable not set. Please set it using your previous code: os.environ[\"GOOGLE_API_KEY\"] = ..." )
+        #         else:
+        #             worker_logger.info(f"Successfully loaded Google's API key.")
+        #
+        #         if not os.environ["LLAMA_CLOUD_API_KEY"]:
+        #             raise ValueError("LLAMA_CLOUD_API_KEY environment variable not set. Please set it using your previous code: os.environ[\"LLAMA_CLOUD_API_KEY\"] = ...")
+        #         else:
+        #             worker_logger.info("Successfully loaded Llama cloud's API key")
+        #
+        #         ollama_base_url = "http://localhost:11434"
+        #         # Settings.llm = Ollama(model=model, base_url=ollama_base_url, request_timeout=120.0  ) #if you want ollama
+        #         Settings.llm = Gemini(model="models/gemini-1.5-flash") # The model name can be changed #if you want gemini
+        #
+        #
+        #         # Step 3: Configure embedding model (nomic-embed-text via Ollama)
+        #         # Settings.embed_model = OllamaEmbedding(
+        #         #     model_name="nomic-embed-text",
+        #         #     base_url=ollama_base_url
+        #         # ) #if you want ollama
+        #         Settings.embed_model = GeminiEmbedding(model_name="models/embedding-001")
+        #
+        #
+        #
+        #         # Step 4: Set up document chunking
+        #         Settings.node_parser = SentenceSplitter(chunk_size=1024, chunk_overlap=20)
+        #
+        #         # Step 5: Build Document and Index
+        #         doc = Document(text=plain_text)
+        #         index = VectorStoreIndex.from_documents([doc])
+        #
+        #         # Step 6: Query the index with the user instruction
+        #         query_engine = index.as_query_engine()
+        #
+        #
+        #         scraping_subject_prompt = (
+        #             f""" I have received the following user request: {instruction} for a web scraper.
+        #             Given this request, give me the subject for which we are looking for data.
+        #             ⚠️ Return ONLY a data subject, which is usually a single world or a phrase,
+        #             **Do NOT** inc
+        #             lude any explanation, markdown, or commentary.
+        #
+        #                                 User request:
+        #             'I want to find information about the price of second-hand cars',
+        #
+        #             Your answer:
+        #             second hand cars
+        #
+        #
+        #             Example2:
+        #             User request:
+        #             'I want to find a list of movies together with their number of nominations, awards and best pictures',
+        #
+        #             Your answer:
+        #             movies
+        #             """
+        #         )
+        #
+        #         data_subject = query_engine.query(scraping_subject_prompt)
+        #
+        #         data_categories_prompt = (
+        #             f"""I have received the following user request: {instruction} for a web scraper"
+        #             From this request extract the data categories that should be found associated with this data subject: {data_subject.response}.
+        #             ⚠️ Return ONLY a list and **Do NOT** include any explanation, markdown, or commentary.
+        #             Each item/bullet point should represent a specific data category request by the user.
+        #
+        #             Example1:
+        #             User request:
+        #             'I want to find information about the price of second-hand cars',
+        #             Data subject:
+        #             second-hand cars
+        #
+        #             Your answer:
+        #             * Car make, model, version, year
+        #             * car Features/configurations
+        #             * car Expert price
+        #             * car Sold price (if available)
+        #
+        #
+        #             Example2:
+        #             User request:
+        #             'I want to find a list of movies together with their number of nominations, awards and best pictures',
+        #             Data subject:
+        #             movies
+        #
+        #             Your answer:
+        #             * Movie number of nominations
+        #             * Movie number of awards for a movie
+        #             * Movie number of best pictures for a movie
+        #             """
+        #         )
+        #         data_categories = query_engine.query(data_categories_prompt)
+        #
+        #
+        #
+        #         relevance_prompt = (
+        #             f"""
+        #             find all the relevant data related to {data_subject.response}
+        #             on the following categories: {data_categories.response}
+        #             inside the source of information available.
+        #             do not skip extracting any relevant data."""  # You can truncate the HTML if needed
+        #         )
+        #         relevant_info = query_engine.query(relevance_prompt)
+        #
+        #         table_prompt = (
+        #             f"""About this data subject:"{data_subject.response}", this data categories are requested: "{data_categories.response}"
+        #             And here is the relevant content from a web page:{relevant_info}".
+        #             Generate a structured table (in markdown format) where each column corresponds to a data category requested.
+        #             Each row of the table corresponds to a unique {data_subject.response}."""
+        #         )
+        #         structured_table = query_engine.query(table_prompt)
+        #
+        #     except Exception as e:
+        #         logging.error(f"LLM agent failed: {e}")
+        #         return f"Error: {str(e)}"
+        #
+        #     try:
+        #         MarkdownReader.MarkDownToCsv(structured_table.response, data_subject.response)
+        #
+        #         return {
+        #             "Data Subject": {data_subject.response},
+        #             "relevant data categories request": {data_categories.response},
+        #             "relevant_info": {relevant_info.response},
+        #             "structured_data": str(structured_table.response)
+        #         }
+        #
+        #     except Exception as e:
+        #         logging.error(f"Fail to turn the Marked-down table into a standard CSV or JSON.")
+        #         return f"Error: {str(e)}"
 
 
 
