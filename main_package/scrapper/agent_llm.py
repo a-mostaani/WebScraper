@@ -185,16 +185,28 @@ class Scrapper_agent:
 
 
         def create_index_and_query_async(html: str, instruction: str, model: str = "llama3:8b-instruct-q5_k_m") -> dict[str, str]:
+            # Get the logger instance from the class method
+            worker_logger_instance = WorkerLogger()
+            worker_logger = worker_logger_instance.setup_worker_logger()
+
             try:
                 # Step 1: Convert HTML to clean plain text
                 plain_text = Scrapper_agent.html_to_text(html)
 
                 # Step 2: Configure Ollama LLM
-                os.environ["GOOGLE_API_KEY"] = "AIzaSyC2HAclDxNQAzKJEBJ8k8dk40JyQuZKCJs"
-                os.environ["LLAMA_CLOUD_API_KEY"] = "llx-Nic4YSakCGZoTdKChJm9XGC6bKDXlggyE6liSgfiC8yXclHk"
+                os.environ["GOOGLE_API_KEY"] = os.getenv("GOOGLE_API_KEY")
+                os.environ["LLAMA_CLOUD_API_KEY"] = os.getenv("GOOGLE_API_KEY")
 
-                worker_logger.info(f"Successfully loaded GOOGLE_API_KEY.")
-                worker_logger.info(f"Successfully loaded LLAMA_CLOUD_API_KEY.")
+                if not os.environ["GOOGLE_API_KEY"]:
+                    raise ValueError("GOOGLE_API_KEY environment variable not set. Please set it using your previous code: os.environ[\"GOOGLE_API_KEY\"] = ..." )
+                else:
+                    worker_logger.info(f"Successfully loaded Google's API key.")
+
+                if not os.environ["LLAMA_CLOUD_API_KEY"]:
+                    raise ValueError("LLAMA_CLOUD_API_KEY environment variable not set. Please set it using your previous code: os.environ[\"LLAMA_CLOUD_API_KEY\"] = ...")
+                else:
+                    worker_logger.info("Successfully loaded Llama cloud's API key")
+
                 ollama_base_url = "http://localhost:11434"
                 # Settings.llm = Ollama(model=model, base_url=ollama_base_url, request_timeout=120.0  ) #if you want ollama
                 Settings.llm = Gemini(model="models/gemini-1.5-flash") # The model name can be changed #if you want gemini
@@ -318,16 +330,16 @@ class Scrapper_agent:
 
 
 
-        # --- Wrapper agent call ---
-        def run_llm_agent(html: str, instruction: str) -> str:
-            try:
-                plain_text = html_to_text(html)
-                index = create_index(plain_text)
-                result = query_with_instruction(index, instruction)
-                return result
-            except Exception as e:
-                logging.error(f"LLM agent failed: {e}")
-                return f"Error: {str(e)}"
+        # # --- Wrapper agent call ---
+        # def run_llm_agent(html: str, instruction: str) -> str:
+        #     try:
+        #         plain_text = html_to_text(html)
+        #         index = create_index(plain_text)
+        #         result = query_with_instruction(index, instruction)
+        #         return result
+        #     except Exception as e:
+        #         logging.error(f"LLM agent failed: {e}")
+        #         return f"Error: {str(e)}"
 
 
 
