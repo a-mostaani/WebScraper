@@ -35,8 +35,15 @@ class Scrapper_agent:
                 plain_text = Scrapper_agent.html_to_text(html)
 
                 # Step 2: Configure Ollama LLM
-                os.environ["GOOGLE_API_KEY"] = "AIzaSyC2HAclDxNQAzKJEBJ8k8dk40JyQuZKCJs"
-                os.environ["LLAMA_CLOUD_API_KEY"] = "llx-Nic4YSakCGZoTdKChJm9XGC6bKDXlggyE6liSgfiC8yXclHk"
+                os.environ["GOOGLE_API_KEY"] = os.getenv("GOOGLE_API_KEY")
+                os.environ["LLAMA_CLOUD_API_KEY"] = os.getenv("GOOGLE_API_KEY")
+
+                if not os.environ["GOOGLE_API_KEY"]:
+                    raise ValueError("GOOGLE_API_KEY environment variable not set. Please set it using your previous code: os.environ[\"GOOGLE_API_KEY\"] = ..." )
+
+                if not os.environ["LLAMA_CLOUD_API_KEY"]:
+                    raise ValueError("LLAMA_CLOUD_API_KEY environment variable not set. Please set it using your previous code: os.environ[\"LLAMA_CLOUD_API_KEY\"] = ...")
+
                 ollama_base_url = "http://localhost:11434"
                 # Settings.llm = Ollama(model=model, base_url=ollama_base_url, request_timeout=120.0  ) #if you want ollama
                 Settings.llm = Gemini(model="models/gemini-1.5-flash") # The model name can be changed #if you want gemini
