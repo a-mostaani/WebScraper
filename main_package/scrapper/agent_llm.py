@@ -15,6 +15,7 @@ from llama_index.embeddings.gemini import GeminiEmbedding
 from main_package.scrapper.utils import MarkdownReader
 from llama_index.core.node_parser import SentenceSplitter
 import asyncio
+from main_package.scrapper.utils import WorkerLogger
 
 
 
@@ -30,6 +31,9 @@ class Scrapper_agent:
 
         @staticmethod
         def create_index_and_query(html: str, instruction: str, model: str = "llama3:8b-instruct-q5_k_m") -> dict[str, str]:
+            # Get the logger instance from the class method
+            worker_logger_instance = WorkerLogger()
+            worker_logger = worker_logger_instance.setup_worker_logger()
             try:
                 # Step 1: Convert HTML to clean plain text
                 plain_text = Scrapper_agent.html_to_text(html)
@@ -41,12 +45,12 @@ class Scrapper_agent:
                 if not os.environ["GOOGLE_API_KEY"]:
                     raise ValueError("GOOGLE_API_KEY environment variable not set. Please set it using your previous code: os.environ[\"GOOGLE_API_KEY\"] = ..." )
                 else:
-                    print("Google API Key was successfully, loaded.")
+                    worker_logger.info(f"Successfully loaded Google's API key.")
 
                 if not os.environ["LLAMA_CLOUD_API_KEY"]:
                     raise ValueError("LLAMA_CLOUD_API_KEY environment variable not set. Please set it using your previous code: os.environ[\"LLAMA_CLOUD_API_KEY\"] = ...")
                 else:
-                    print("Llama cloud Key was successfully, loaded.")
+                    worker_logger.info("Successfully loaded Llama cloud's API key")
 
                 ollama_base_url = "http://localhost:11434"
                 # Settings.llm = Ollama(model=model, base_url=ollama_base_url, request_timeout=120.0  ) #if you want ollama
@@ -188,6 +192,9 @@ class Scrapper_agent:
                 # Step 2: Configure Ollama LLM
                 os.environ["GOOGLE_API_KEY"] = "AIzaSyC2HAclDxNQAzKJEBJ8k8dk40JyQuZKCJs"
                 os.environ["LLAMA_CLOUD_API_KEY"] = "llx-Nic4YSakCGZoTdKChJm9XGC6bKDXlggyE6liSgfiC8yXclHk"
+
+                worker_logger.info(f"Successfully loaded GOOGLE_API_KEY.")
+                worker_logger.info(f"Successfully loaded LLAMA_CLOUD_API_KEY.")
                 ollama_base_url = "http://localhost:11434"
                 # Settings.llm = Ollama(model=model, base_url=ollama_base_url, request_timeout=120.0  ) #if you want ollama
                 Settings.llm = Gemini(model="models/gemini-1.5-flash") # The model name can be changed #if you want gemini

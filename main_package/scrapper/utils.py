@@ -6,6 +6,25 @@ import csv
 import re
 import pandas as pd
 import logging
+import os
+
+
+class WorkerLogger:
+    def __init__(self):
+        self.LOG_FILE_PATH = "scrapper_log.txt"
+    # This function configures a file logger for each process.
+    def setup_worker_logger(self):
+        # Use a unique logger name for each process to avoid conflicts
+        worker_logger = logging.getLogger(f"Worker_{os.getpid()}")
+        if not worker_logger.handlers:
+            file_handler = logging.FileHandler(self.LOG_FILE_PATH)
+            formatter = logging.Formatter(
+                '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+            )
+            file_handler.setFormatter(formatter)
+            worker_logger.addHandler(file_handler)
+            worker_logger.setLevel(logging.INFO)
+        return worker_logger
 
 
 class DataCleaner:
