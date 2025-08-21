@@ -40,9 +40,13 @@ class Scrapper_agent:
 
                 if not os.environ["GOOGLE_API_KEY"]:
                     raise ValueError("GOOGLE_API_KEY environment variable not set. Please set it using your previous code: os.environ[\"GOOGLE_API_KEY\"] = ..." )
+                else:
+                    print("Google API Key was successfully, loaded.")
 
                 if not os.environ["LLAMA_CLOUD_API_KEY"]:
                     raise ValueError("LLAMA_CLOUD_API_KEY environment variable not set. Please set it using your previous code: os.environ[\"LLAMA_CLOUD_API_KEY\"] = ...")
+                else:
+                    print("Llama cloud Key was successfully, loaded.")
 
                 ollama_base_url = "http://localhost:11434"
                 # Settings.llm = Ollama(model=model, base_url=ollama_base_url, request_timeout=120.0  ) #if you want ollama
