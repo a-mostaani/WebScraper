@@ -1,12 +1,118 @@
 # Clean up the data rows by stripping whitespace from each cell
 import io
+from urllib.parse import urljoin
 
+from bs4 import BeautifulSoup
 from llama_index.readers.file import MarkdownReader
 import csv
 import re
 import pandas as pd
 import logging
 import os
+from typing import Dict, List
+import base64, hashlib
+from llama_index.core import Document  # v0.10+ import
+import ollama
+from typing import List
+
+
+PRICE_RE = re.compile(r'(\d[\d\.\s]*)(?:\s*€)', re.UNICODE)
+AD_HREF_PAT = re.compile(r'/([a-z]{2}/)?usedcar/[^"]+?\.html\?id=\d+', re.I)
+
+
+class ArrayGenerators:
+
+    def create_dict_with_empty_lists(n_keys: int, keys: List[str] = None) -> dict:
+        """
+        Creates a Python dictionary with 'n_keys', where each key corresponds to an empty list.
+
+        If a list of key names is provided, it will use those names. Otherwise, it will
+        generate default key names.
+
+        Args:
+            n_keys (int): The number of keys to create in the dictionary.
+            keys (List[str], optional): A list of strings to use as key names.
+                                         Must have a length equal to n_keys. Defaults to None.
+
+        Returns:
+            dict: A dictionary with 'n_keys' and an empty list as the value for each key.
+
+        Raises:
+            ValueError: If a 'keys' list is provided and its length does not match 'n_keys'.
+        """
+        # Use a dictionary comprehension for a clean and efficient creation process.
+        if keys:
+            # Check if the number of keys provided matches the requested number of keys.
+            if len(keys) != n_keys:
+                raise ValueError(f"The number of keys provided ({len(keys)}) must match n_keys ({n_keys}).")
+
+            # Create the dictionary using the provided keys.
+            return {key: [] for key in keys}
+        else:
+            # If no keys are provided, generate default key names like 'key_0', 'key_1', etc.
+            return {f"key_{i}": [] for i in range(n_keys)}
+
+
+class WebPageReader:
+    def extract_listing_links(html_bytes: bytes, base_url: str):
+        """Robustly pull ad-detail links from a listing page."""
+        soup = BeautifulSoup(html_bytes, "lxml")  # lxml is more forgiving than the default parser
+        links = set()
+
+        # Primary: any <a> whose href contains /usedcar/ and ends with id=...
+        for a in soup.select('a[href]'):
+            href = a.get('href', '')
+            if AD_HREF_PAT.search(href):
+                links.add(urljoin(base_url, href))
+
+        # Fallback: regex over raw HTML in case attributes are weirdly split
+        if not links:
+            html_txt = html_bytes.decode("utf-8", "ignore")
+            for m in AD_HREF_PAT.finditer(html_txt):
+                links.add(urljoin(base_url, m.group(0)))
+
+        return sorted(links)
+
+    def extract_price_from_detail(html):
+        soup = BeautifulSoup(html, "html.parser")
+        txt = soup.get_text(" ", strip=True)
+        # Try a narrow search near the "Price" label first (detail pages)
+        price_block = ""
+        for label in soup.find_all(string=re.compile(r'\bPrice\b', re.I)):
+            # look at the parent chunk for a nearby euro amount
+            chunk = label.parent.get_text(" ", strip=True)
+            m = PRICE_RE.search(chunk)
+            if m:
+                price_block = m.group(0)
+                break
+        if not price_block:
+            # fallback: global search in the whole page text
+            m = PRICE_RE.search(txt)
+            if m:
+                price_block = m.group(0)
+        if not price_block:
+            return None, None
+        # normalize "33.999 €" -> 33999
+        amount_txt = PRICE_RE.search(price_block).group(1)
+        amount_num = int(re.sub(r'[^\d]', '', amount_txt))
+        return price_block, amount_num
+
+
+    def debug_anchor_sample(html_bytes: bytes, base_url: str, n=10):
+        soup = BeautifulSoup(html_bytes, "lxml")
+        anchors = soup.select('a[href]')
+        print(f"Total <a> tags: {len(anchors)}")
+        # show a few that look like detail links
+        sample = []
+        for a in anchors:
+            href = a.get('href', '')
+            if '/usedcar/' in href or 'id=' in href:
+                sample.append(urljoin(base_url, href))
+            if len(sample) >= n:
+                break
+        print("Sample candidate hrefs:")
+        for h in sample:
+            print("  ", h)
 
 
 class WorkerLogger:
@@ -118,3 +224,72 @@ class MarkdownReader:
 
             return None
 
+
+class DataMapper:
+# if you're on old code, use: from llama_index.legacy import Document
+
+    def data_map_to_documents(data_map: Dict[str, dict]) -> List[Document]:
+        docs: List[Document] = []
+        for url, rec in data_map.items():
+            # accept either plaintext html or base64 bytes
+            if "html" in rec and isinstance(rec["html"], str):
+                html_text = rec["html"]
+            elif "html_bytes_b64" in rec:
+                enc = rec.get("encoding", "utf-8")
+                html_text = base64.b64decode(rec["html_bytes_b64"]).decode(enc, errors="replace")
+            else:
+                continue
+
+            # stable id: use the url (or hash if you prefer shorter)
+            doc_id = url  # or hashlib.md5(url.encode()).hexdigest()
+
+            docs.append(
+                Document(
+                    id_=doc_id,
+                    text=html_text,                 # raw HTML string
+                    metadata={
+                        "source": "luxauto",
+                        "url": url,
+                        "encoding": rec.get("encoding", "utf-8"),
+                        "fetched_at": rec.get("fetched_at"),
+                    },
+                    # optional: embed metadata into text for downstream prompts
+                    # text_template="URL: {metadata[url]}\n-----\n{content}",
+                )
+            )
+        return docs
+
+
+
+class LLMInteractions:
+
+    def get_llama3_response_non_streaming(prompt_text, model_name="llama3"):
+        """
+        Sends a prompt to Llama 3 (via Ollama) and retrieves the full response.
+        """
+        try:
+            # ollama.chat() is generally preferred for conversational models like Llama 3
+            # It takes a list of messages, allowing for conversational context
+            response = ollama.chat(
+                model=model_name,
+                messages=[
+                    {'role': 'user', 'content': prompt_text},
+                ],
+                stream=False # Set to False for non-streaming
+            )
+
+            # The response structure for ollama.chat (non-streaming)
+            # is a dictionary, where the message content is under ['message']['content']
+            if 'message' in response and 'content' in response['message']:
+                llama_message = response['message']['content']
+                return llama_message
+            else:
+                print(f"Error: Unexpected response format for non-streaming chat: {response}")
+                return None
+
+        except ollama.ResponseError as e:
+            print(f"Ollama API Error (Status {e.status_code}): {e.error}")
+            return None
+        except Exception as e:
+            print(f"An unexpected error occurred: {e}")
+            return None
