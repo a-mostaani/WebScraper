@@ -312,6 +312,7 @@ if __name__ == "__main__":
     # structured_data = Scrapper_agent.create_index_and_query_from_detail_dict(docs, instruction, model='llama3')
     for job in jobs:
         relevant_data[job['url']].append(LLMInteractions.get_llama3_response_non_streaming(instruction + job['text'], model_name="llama3"))
+        print(f"Processed {len(relevant_data[job['url']])} llm job related to the url: {job['url']}.")
 
     print(relevant_data)
 
